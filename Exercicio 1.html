@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            background-color: gainsboro;
+        }
+        img{
+            max-width:150px;
+            max-height:150px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <div class="row mt-2" style="text-align: center;">
+                <div class="col-md-12">
+                    <h2>Curso Javascript - PHM 2021 - Dia 7 - Exercicio 1</h2>
+                    <hr>
+                </div>
+            </div>
+
+            <div class="row mt-0" style="text-align: center;">
+                <div class="col-md-2"></div>
+                <div class="col-md-8">
+                    <h1>Pesquisar Usuário</h1>
+                    <div class="input-group mt-3 mb-3">
+                        <input type="text" class="form-control border border-primary" placeholder="Nome do usuário" value="">
+                        <button @click="pesquisarUser" class="btn btn-primary" type="button">Pesquisar</button>
+                    </div>
+                </div>        
+            </div>
+            <div class="row mt-0 mb-0" id="erro_pesquisa" style="display:none">
+                <div class="col-md-12" style="text-align: center">
+                    <p>Usuário não encontrado ou inválido.</p>
+                </div>
+            </div>
+            <div class="row mt-0" id="resultado_pesquisa" style="display:none">
+                <div class="col-md-2"></div>
+                <div class="col-md-8 border border-2 border-dark d-flex">
+                    <div class="col-md-4 mt-3 ml-1 mr-1 mb-3">
+                        <img :src="User_Img" class="border border-1 border-white" alt="Foto">
+                    </div>
+                    <div class="col-md-1 mr-0 ml-0"></div>
+                    <div class="col-md-7 mt-3 ml-1 mb-3 mr-1">
+                        <div class="mt-0">
+                            <p class="mb-2"><span class="font-weight-bold">USUÁRIO: </span>{{ User_Login }}</p>
+                            <p class="mb-2">NOME: {{ User_Name }}</p>
+                            <p class="mb-2">LOCALIZAÇÃO: {{ User_Location }}</p>
+                            <p class="mb-2">REPOSITÓRIO (PÚBLICO): {{ User_Repos }}</p>
+                            <p class="mb-2">HTML: <a :href="User_URL">{{ User_URL }}</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <script>
+    
+        const app = new Vue({
+                el: "#app",
+                data: {
+                    User_Login: "",
+                    User_Name: "",
+                    User_Location: "",
+                    User_Repos: "",
+                    User_URL: "",
+                    User_Img: "",
+                },
+                methods: {
+                    pesquisarUser(){
+                        let pesquisa = document.querySelector("input")
+                        let quadro_resultado = document.querySelector("#resultado_pesquisa")
+                        let quadro_erro = document.querySelector("#erro_pesquisa")
+                        let url = `https://api.github.com/users/${pesquisa.value}`
+                        if(pesquisa.value != "")
+                        {
+                            fetch(url)
+                                .then(response => {
+                                    if (!response.ok)
+                                    {
+                                        quadro_resultado.setAttribute("style","display: none")
+                                        quadro_erro.setAttribute("style","display: flex")
+                                        throw new Error("Usuário não encontrado ou inválido.")
+                                    }
+                                    return response.json()
+                                })
+                                .then(json => {
+                                    this.User_Login = `${json.login}`
+                                    this.User_Name = `${json.name}`
+                                    this.User_Location = `${json.location}`
+                                    this.User_Repos = `${json.public_repos}`
+                                    this.User_URL = `${json.html_url}`
+                                    this.User_Img = `${json.avatar_url}`
+                                    quadro_resultado.setAttribute("style","display: flex")
+                                    quadro_erro.setAttribute("style","display: none")
+                                })
+                                .catch(console.error)
+                            pesquisa.value = ""
+                        }
+                        else
+                            if(!quadro_resultado.getAttribute("style").includes("flex") || !quadro_erro.getAttribute("style").includes("flex"))
+                            {
+                                quadro_resultado.setAttribute("style","display: none")
+                                quadro_erro.setAttribute("style","display: none")
+                            }
+                    }
+                },
+        })
+    </script>
+
+</body>
+</html>
